@@ -7,7 +7,6 @@
 use Crontab\Job;
 use Crontab\Crontab;
 use Crontab\CrontabFileHandler;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
 
 class Entries
@@ -233,14 +232,13 @@ class Entries
     }
 
     /**
-     * Write filtered crons to output.
+     * Write filtered crons to file.
      *
-     * @todo write test
      * @param string $filepath
      * @param array $ids 
      * @return bool
      */
-    public function dump(array $ids = array(), OutputInterface $output)
+    public function dumpToFile($filepath, array $ids = array())
     {
         $taskBuffer = '';
 
@@ -260,8 +258,10 @@ class Entries
 
         foreach ($jobs as $job)
         {
-            $output->writeln($job->render());
+            $taskBuffer .= $job->render() . PHP_EOL;
         }
+
+        return file_put_contents($filepath, $taskBuffer);
     }
 
     /**

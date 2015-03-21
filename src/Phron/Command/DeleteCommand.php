@@ -31,27 +31,45 @@ class DeleteCommand extends AbstractCommand
         $this->setName('delete')
              ->setDescription('Delete tasks')
              ->setHelp('Delete tasks')
-             ->addArgument('taskIds', InputArgument::IS_ARRAY, $description);
+             ->addArgument(
+                'taskIds', 
+                InputArgument::IS_ARRAY,               // make this optional and add a delete all option 
+                $description
+            );
     }
     
     public function fire()
     {
+        //$tasksToDelete = array();
         $taskIds = $this->input->getArgument('taskIds');
         $tasksToDelete = $this->entries->parseIds($taskIds);
-        $message = 'Cancelled';
 
-        if (!empty($taskIds) && $this->confirm('Delete ' . count($tasksToDelete) . ' task(s)? '))
+        if (!empty($taskIds))
         {
+            if ($this->confirm('Delete ' . count($tasksToDelete) . ' task(s)? '))
+            {
                 $this->entries->delete($tasksToDelete);
-                $message = 'Done';
+            }
+            else
+            {
+                $this->writeln('Cancelled');
+            }
         }
-        elseif ($this->confirm('Delete all tasks? '))
+        else
         {
+            if ($this->confirm('Delete all tasks? '))
+            {
                 $this->entries->clear();
-                $message = 'Done';
+            }
+            else
+            {
+                $this->writeln('Cancelled');
+            }
         }
 
+        //var_dump($tasksToDelete);
+        //die();
         $this->entries->save();
-        $this->writeln($message);
+        $this->writeln('Done');
     }
 }
